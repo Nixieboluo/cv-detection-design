@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>通过 WebSocket 查看图像流</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 80vw;
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #status {
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>通过 WebSocket 查看图像流</h1>
+<img id="image" alt="Image" />
+<div class="controls">
+    <input type="text" id="serverAddress" value="ws://127.0.0.1:8900" />
+    <button onclick="connectWebSocket()">连接</button>
+    <button onclick="disconnectWebSocket()">断开</button>
+</div>
+<div id="status">已断开</div>
+<script>
+    let ws;
+
+    function connectWebSocket() {
+        const serverAddress = document.getElementById('serverAddress').value;
+        ws = new WebSocket(serverAddress);
+
+        ws.binaryType = 'arraybuffer';
+
+        ws.onopen = function() {
+            document.getElementById('status').textContent = '已连接';
+            document.getElementById('status').style.color = 'green';
+            document.getElementById('image').style.display = 'block';
+        };
+
+        ws.onmessage = function(event) {
+            const eventData = event.data;
+
+            // 将 ArrayBuffer 转换为 Blob
+            const blob = new Blob([eventData], { type: 'image/png' });
+
+            // 创建 URL 对象
+            const url = URL.createObjectURL(blob);
+
+            // 将 URL 赋给 img 标签的 src 属性
+            const imgElement = document.getElementById('image');
+            imgElement.src = url;
+        };
+
+        ws.onclose = function() {
+            document.getElementById('status').textContent = '已断开';
+            document.getElementById('status').style.color = 'red';
+            document.getElementById('image').style.display = 'none'; // 隐藏图像
+        };
+
+        ws.onerror = function() {
+            document.getElementById('status').textContent = '发生错误';
+            document.getElementById('status').style.color = 'red';
+            document.getElementById('image').style.display = 'none'; // 隐藏图像
+        };
+    }
+
+    function disconnectWebSocket() {
+        if (ws) {
+            ws.close();
+        }
+    }
+</script>
+</body>
+</html>

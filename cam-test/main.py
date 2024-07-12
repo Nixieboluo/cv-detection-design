@@ -6,7 +6,7 @@ from common.draw_fps import draw_fps
 
 CAM_DEVICE_ID = 0
 CAM_WIDTH = 640
-CAM_HEIGHT = 360
+CAM_HEIGHT = 480
 
 fps = 0
 

@@ -31,6 +31,7 @@ def main():
         # 可选：对 fgmask 应用形态学操作（例如开运算）以改善检测效果
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
         excl_frame = cv2.erode(excl_frame, kernel, iterations=1)
+        excl_frame = cv2.dilate(excl_frame, kernel, iterations=1)
         excl_frame = cv2.morphologyEx(excl_frame, cv2.MORPH_OPEN, kernel)
 
         # 查找轮廓并绘制边界框
